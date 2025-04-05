@@ -12,24 +12,31 @@ interface TextToSpeechHook {
 export const useTextToSpeech = (): TextToSpeechHook => {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const isMounted = useRef(true) // Track component mount state
 
   // Clean up on unmount
   useEffect(() => {
+    isMounted.current = true
     return () => {
+      isMounted.current = false
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel()
+        setIsSpeaking(false)
       }
     }
   }, [])
 
   const speak = (text: string, language = "en-US") => {
     if (typeof window === "undefined" || !window.speechSynthesis) {
-      console.warn('Speech synthesis not supported')
+      console.warn("Speech synthesis not supported")
       return
     }
 
-    // Stop any current speech
-    stop()
+    // Cancel any ongoing or queued speech
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel()
+      console.log("Cleared existing speech queue")
+    }
 
     // Create a new utterance
     const newUtterance = new SpeechSynthesisUtterance(text)
@@ -40,43 +47,51 @@ export const useTextToSpeech = (): TextToSpeechHook => {
     // Store in ref
     utteranceRef.current = newUtterance
 
-    // Set up event handlers
+    // Event handlers
     newUtterance.onstart = () => {
-      setIsSpeaking(true)
+      if (isMounted.current) {
+        setIsSpeaking(true)
+        console.log(`Started speaking: "${text.substring(0, 50)}..."`)
+      }
     }
 
     newUtterance.onend = () => {
-      setIsSpeaking(false)
-      utteranceRef.current = null
+      if (isMounted.current) {
+        setIsSpeaking(false)
+        utteranceRef.current = null
+        console.log(`Finished speaking: "${text.substring(0, 50)}..."`)
+      }
     }
 
     newUtterance.onerror = (e) => {
-      console.error('SpeechSynthesis error:', e)
-      setIsSpeaking(false)
-      utteranceRef.current = null
-      // Force reset the speech synthesis
-      window.speechSynthesis.cancel()
+      if (isMounted.current) {
+        console.error("SpeechSynthesis error:", e)
+        setIsSpeaking(false)
+        utteranceRef.current = null
+        window.speechSynthesis.cancel() // Ensure cleanup
+      }
     }
 
-    // Add a small delay to ensure previous speech is fully cancelled
-    setTimeout(() => {
-      window.speechSynthesis.speak(newUtterance)
-    }, 100)
+    // Speak immediately after canceling previous utterances
+    window.speechSynthesis.speak(newUtterance)
   }
 
   const stop = () => {
     if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel()
-      setIsSpeaking(false)
-      utteranceRef.current = null
+      if (isMounted.current) {
+        setIsSpeaking(false)
+        utteranceRef.current = null
+        console.log("Speech stopped manually")
+      }
     }
   }
 
-  return { 
-    speak, 
-    stop, 
-    isSpeaking, 
-    stopSpeaking: stop 
+  return {
+    speak,
+    stop,
+    isSpeaking,
+    stopSpeaking: stop,
   }
 }
 
