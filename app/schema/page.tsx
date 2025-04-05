@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import Avatar from "@/components/avatar"
 import ChatMessage from "@/components/chat-message"
-import SchemeMode from "@/components/modes/scheme-mode"
+import SchemesMode from "@/components/modes/scheme-mode"
 import LanguageSelector from "@/components/language-selector"
 import EmergencyCall from "@/components/emergency-call"
 import { useTranslation } from "@/hooks/use-translation"
@@ -18,8 +18,7 @@ import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-
-export default function SchemePage() {
+export default function SchemesPage() {
   const [darkMode, setDarkMode] = useState(false)
   const [fontSize, setFontSize] = useState(1)
   const [contrast, setContrast] = useState(1)
@@ -27,9 +26,7 @@ export default function SchemePage() {
   const [showSettings, setShowSettings] = useState(false)
   const [showEmergencyCall, setShowEmergencyCall] = useState(false)
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([])
-  const [avatarMood, setAvatarMood] = useState<
-    "neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping"
-  >("neutral")
+  const [avatarMood, setAvatarMood] = useState<"neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping">("happy")
 
   const { t, language, setLanguage } = useTranslation()
   const { user, isAuthenticated, logout } = useAuth()
@@ -47,13 +44,17 @@ export default function SchemePage() {
     recognition.interimResults = false
   }
 
+  // Initialize the page - runs only once on mount
   useEffect(() => {
-    setMessages([{ text: t("scheme_welcome"), isUser: false }])
-    speak(t("scheme_welcome"), language)
+    const welcomeMessage = t("schemes_welcome")
+    setMessages([{ text: welcomeMessage, isUser: false }])
+    speak(welcomeMessage, language)
+    
     if (isAuthenticated && !location) {
       requestLocation()
     }
-  }, [t, language, speak, isAuthenticated, location, requestLocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array means this runs only once on mount
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -64,8 +65,19 @@ export default function SchemePage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt = "You are a government scheme advisor. Provide information about schemes for senior citizens: "
-    const fullPrompt = modePrompt + prompt
+    const modePrompt = "You are a government schemes assistant for senior citizens in India. Provide detailed information about schemes, eligibility, benefits, and application process. Focus on: "
+    const commonSchemes = [
+      "Pradhan Mantri Vaya Vandana Yojana (PMVVY)",
+      "Indira Gandhi National Old Age Pension Scheme (IGNOAPS)",
+      "National Programme for Health Care of the Elderly (NPHCE)",
+      "Rashtriya Vayoshri Yojana",
+      "Senior Citizens' Welfare Fund",
+      "Varishta Mediclaim Policy",
+      "Dada-Dadi Bond Scheme",
+      "State-specific pension schemes"
+    ].join(", ")
+    
+    const fullPrompt = `${modePrompt}${commonSchemes}. For the query: ${prompt}. Include eligibility age (usually 60+), documents required, benefits, and how to apply.`
 
     const response = await fetch("http://127.0.0.1:8000/api/gemini", {
       method: "POST",
@@ -91,7 +103,7 @@ export default function SchemePage() {
     }
 
     setIsListening(!isListening)
-    setAvatarMood(isListening ? "thinking" : "neutral")
+    setAvatarMood(isListening ? "thinking" : "happy")
 
     if (!isListening) {
       recognition.start()
@@ -103,9 +115,9 @@ export default function SchemePage() {
         try {
           const aiResponse = await askGemini(userPrompt)
           setMessages((prev) => [...prev, { text: aiResponse, isUser: false }])
-          setAvatarMood("neutral")
+          setAvatarMood("happy")
           stopSpeaking()
-          speak(aiResponse, language)
+          setTimeout(() => speak(aiResponse, language), 300)
         } catch (error) {
           setMessages((prev) => [...prev, { text: t("error_message"), isUser: false }])
           setAvatarMood("neutral")
@@ -296,7 +308,7 @@ export default function SchemePage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <SchemeMode darkMode={darkMode} fontSize={fontSize} />
+          <SchemesMode darkMode={darkMode} fontSize={fontSize} location={location} />
         </motion.div>
 
         {/* Microphone button */}
@@ -311,7 +323,7 @@ export default function SchemePage() {
               "p-6 rounded-full shadow-lg flex items-center justify-center",
               isListening
                 ? "bg-red-500 hover:bg-red-600"
-                : "bg-purple-500 hover:bg-purple-600"
+                : "bg-blue-500 hover:bg-blue-600"
             )}
             onClick={handleMicToggle}
             whileTap={{ scale: 0.95 }}

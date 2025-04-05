@@ -18,7 +18,6 @@ import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-
 export default function WellnessPage() {
   const [darkMode, setDarkMode] = useState(false)
   const [fontSize, setFontSize] = useState(1)
@@ -47,13 +46,17 @@ export default function WellnessPage() {
     recognition.interimResults = false
   }
 
+  // Initialize the page - runs only once on mount
   useEffect(() => {
-    setMessages([{ text: t("wellness_welcome"), isUser: false }])
-    speak(t("wellness_welcome"), language)
+    const welcomeMessage = t("wellness_welcome")
+    setMessages([{ text: welcomeMessage, isUser: false }])
+    speak(welcomeMessage, language)
+    
     if (isAuthenticated && !location) {
       requestLocation()
     }
-  }, [t, language, speak, isAuthenticated, location, requestLocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array means this runs only once on mount
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -64,7 +67,7 @@ export default function WellnessPage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt = "You are a health assistant. Provide medical or wellness advice: "
+    const modePrompt = "You are a health assistant. just give reponse to query dont say i am ai , keep the reponse short and simple , dont use start and asterick "
     const fullPrompt = modePrompt + prompt
 
     const response = await fetch("http://127.0.0.1:8000/api/gemini", {
@@ -105,7 +108,7 @@ export default function WellnessPage() {
           setMessages((prev) => [...prev, { text: aiResponse, isUser: false }])
           setAvatarMood("wellness")
           stopSpeaking()
-          speak(aiResponse, language)
+          setTimeout(() => speak(aiResponse, language), 300)
         } catch (error) {
           setMessages((prev) => [...prev, { text: t("error_message"), isUser: false }])
           setAvatarMood("neutral")
@@ -132,10 +135,7 @@ export default function WellnessPage() {
     setShowEmergencyCall(true)
   }
 
-  if (!isAuthenticated) {
-    window.location.href = "/login"
-    return null
-  }
+ 
 
   return (
     <main

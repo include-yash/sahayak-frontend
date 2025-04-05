@@ -36,7 +36,7 @@ export default function WelcomeAnimation() {
               }}
             />
             <Image
-              src="/placeholder.svg?height=200&width=200"
+              src="/welcome.png?height=200&width=200"
               alt="Namaste Gesture"
               width={200}
               height={200}

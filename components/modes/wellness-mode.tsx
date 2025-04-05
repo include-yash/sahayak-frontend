@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface WellnessModeProps {
   darkMode: boolean
@@ -10,13 +11,45 @@ interface WellnessModeProps {
 }
 
 export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) {
+  const router = useRouter()
+
   const topics = [
-    { icon: "💊", title: "Medication Reminders", description: "Set and manage your medication schedule" },
-    { icon: "🧘‍♀️", title: "Simple Exercises", description: "Easy exercises suitable for seniors" },
-    { icon: "🥗", title: "Healthy Diet", description: "Nutrition advice and meal suggestions" },
-    { icon: "😌", title: "Meditation", description: "Guided relaxation and mindfulness" },
-    { icon: "🩺", title: "Health Tips", description: "General wellness advice" },
-    { icon: "🧠", title: "Mental Wellness", description: "Activities to keep your mind sharp" },
+    {
+      icon: "💊",
+      title: "Medication Reminders",
+      description: "Set and manage your medication schedule",
+      path: "/wellness/medication",
+    },
+    {
+      icon: "🧘‍♀️",
+      title: "Simple Exercises",
+      description: "Easy exercises suitable for seniors",
+      path: "/wellness/exercises",
+    },
+    {
+      icon: "🥗",
+      title: "Healthy Diet",
+      description: "Nutrition advice and meal suggestions",
+      path: "/wellness/diet",
+    },
+    {
+      icon: "😌",
+      title: "Meditation",
+      description: "Guided relaxation and mindfulness",
+      path: "/wellness/meditation",
+    },
+    {
+      icon: "🩺",
+      title: "Health Tips",
+      description: "General wellness advice",
+      path: "/wellness/tips",
+    },
+    {
+      icon: "🧠",
+      title: "Mental Wellness",
+      description: "Activities to keep your mind sharp",
+      path: "/wellness/mental",
+    },
   ]
 
   return (
@@ -57,6 +90,7 @@ export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) 
                   ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
                   : "bg-white hover:bg-green-50 border-green-100",
               )}
+              onClick={() => router.push(topic.path)}
             >
               <div className="text-3xl">{topic.icon}</div>
               <div>

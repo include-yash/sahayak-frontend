@@ -61,13 +61,14 @@ export const useTextToSpeech = (): TextToSpeechHook => {
       }
     }
 
-    newUtterance.onerror = (e) => {
+    newUtterance.onerror = (e: any) => {
+      console.error("SpeechSynthesis error:", e?.error || e)
       if (isMounted.current) {
-        console.error("SpeechSynthesis error:", e)
         setIsSpeaking(false)
         utteranceRef.current = null
       }
     }
+    
 
     window.speechSynthesis.speak(newUtterance)
   }, [stopSpeaking])

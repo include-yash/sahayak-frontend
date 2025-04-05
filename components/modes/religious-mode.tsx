@@ -4,10 +4,11 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin } from "lucide-react"
+import { MapPin } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { searchNearbyTemples } from "@/lib/api-services"
+import { useRouter } from "next/navigation"
 
 interface ReligiousModeProps {
   darkMode: boolean
@@ -30,6 +31,7 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
   const [temples, setTemples] = useState<Temple[]>([])
 
   const { t } = useTranslation()
+  const router = useRouter()
 
   const handleSearch = async () => {
     setIsSearching(true)
@@ -44,12 +46,42 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
   }
 
   const topics = [
-    { icon: "🕉️", title: t("hindu_scriptures"), description: t("scriptures_description") },
-    { icon: "🙏", title: t("daily_prayers"), description: t("prayers_description") },
-    { icon: "🛕", title: t("temple_visits"), description: t("temple_description") },
-    { icon: "📖", title: t("religious_stories"), description: t("stories_description") },
-    { icon: "🪔", title: t("festivals"), description: t("festivals_description") },
-    { icon: "🧘‍♀️", title: t("meditation"), description: t("meditation_description") },
+    { 
+      icon: "🕉️", 
+      title: t("hindu_scriptures"), 
+      description: t("scriptures_description"),
+      path: "/religious/HinduScriptures"
+    },
+    { 
+      icon: "🙏", 
+      title: t("daily_prayers"), 
+      description: t("prayers_description"),
+      path: "/religious/prayer"
+    },
+    { 
+      icon: "🛕", 
+      title: t("temple_visits"), 
+      description: t("temple_description"),
+      path: "/religious/temples"
+    },
+    { 
+      icon: "📖", 
+      title: t("religious_stories"), 
+      description: t("stories_description"),
+      path: "/religious/stories"
+    },
+    { 
+      icon: "🪔", 
+      title: t("festivals"), 
+      description: t("festivals_description"),
+      path: "/religious/festivals"
+    },
+    { 
+      icon: "🧘‍♀️", 
+      title: t("meditation"), 
+      description: t("meditation_description"),
+      path: "/religious/meditation"
+    },
   ]
 
   return (
@@ -151,6 +183,7 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
                   ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
                   : "bg-white hover:bg-orange-50 border-orange-100",
               )}
+              onClick={() => router.push(topic.path)}
             >
               <div className="text-3xl">{topic.icon}</div>
               <div>
@@ -171,4 +204,3 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
     </div>
   )
 }
-

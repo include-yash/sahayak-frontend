@@ -24,7 +24,7 @@ export default function Home() {
   const [showEmergencyCall, setShowEmergencyCall] = useState(false)
 
   const { t, language, setLanguage } = useTranslation()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,13 +41,14 @@ export default function Home() {
     setShowEmergencyCall(true)
   }
 
-  if (isLoading) {
-    return <WelcomeAnimation />
-  }
-
-  if (!isAuthenticated) {
+  // ✅ Wait for auth loading before redirecting
+  if (!isAuthenticated && !authLoading) {
     window.location.href = "/login"
     return null
+  }
+
+  if (isLoading || authLoading) {
+    return <WelcomeAnimation />
   }
 
   return (
@@ -181,9 +182,9 @@ export default function Home() {
               icon="🛕"
               color="from-orange-400 to-red-500"
               darkMode={darkMode}
-              fontSize={fontSize} onClick={function (): void {
-                throw new Error("Function not implemented.")
-              } }            />
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
           </Link>
           <Link href="/wellness">
             <ModeCard
@@ -192,9 +193,9 @@ export default function Home() {
               icon="💊"
               color="from-green-400 to-teal-500"
               darkMode={darkMode}
-              fontSize={fontSize} onClick={function (): void {
-                throw new Error("Function not implemented.")
-              } }            />
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
           </Link>
           <Link href="/shopping">
             <ModeCard
@@ -203,20 +204,20 @@ export default function Home() {
               icon="🛒"
               color="from-blue-400 to-indigo-500"
               darkMode={darkMode}
-              fontSize={fontSize} onClick={function (): void {
-                throw new Error("Function not implemented.")
-              } }            />
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
           </Link>
-          <Link href="/scheme">
+          <Link href="/schema">
             <ModeCard
               title={t("scheme_mode")}
               description={t("scheme_description")}
               icon="📜"
               color="from-purple-400 to-pink-500"
               darkMode={darkMode}
-              fontSize={fontSize} onClick={function (): void {
-                throw new Error("Function not implemented.")
-              } }            />
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
           </Link>
         </motion.div>
       </div>

@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Mic, MicOff, Moon, Sun, Settings, ArrowLeft, Phone } from "lucide-react"
+import { Mic, MicOff, Moon, Sun, Settings, ArrowLeft, Phone, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import Avatar from "@/components/avatar"
 import ChatMessage from "@/components/chat-message"
-import ReligiousMode from "@/components/modes/religious-mode"
 import LanguageSelector from "@/components/language-selector"
 import EmergencyCall from "@/components/emergency-call"
 import { useTranslation } from "@/hooks/use-translation"
@@ -18,7 +17,7 @@ import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-export default function ReligiousPage() {
+export default function HinduScripturesPage() {
   const [darkMode, setDarkMode] = useState(false)
   const [fontSize, setFontSize] = useState(1)
   const [contrast, setContrast] = useState(1)
@@ -27,6 +26,7 @@ export default function ReligiousPage() {
   const [showEmergencyCall, setShowEmergencyCall] = useState(false)
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([])
   const [avatarMood, setAvatarMood] = useState<"neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping">("religious")
+  const [inputText, setInputText] = useState("")
 
   const { t, language, setLanguage } = useTranslation()
   const { user, isAuthenticated, logout } = useAuth()
@@ -46,7 +46,7 @@ export default function ReligiousPage() {
 
   // Initialize the page - runs only once on mount
   useEffect(() => {
-    const welcomeMessage = t("religious_welcome")
+    const welcomeMessage = t("scriptures_welcome") || "Welcome to Hindu Scriptures. Ask me about Vedas, Upanishads, Bhagavad Gita, or any other sacred texts."
     setMessages([{ text: welcomeMessage, isUser: false }])
     speak(welcomeMessage, language)
     
@@ -65,8 +65,20 @@ export default function ReligiousPage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt = "You are a spiritual guide. Respond with information or stories about gods, goddesses, or religious practices: "
-    const fullPrompt = modePrompt + prompt
+    const scripturePrompt = `
+      You are an expert on Hindu scriptures. Provide accurate information from authentic sources about:
+      - Vedas (Rigveda, Yajurveda, Samaveda, Atharvaveda)
+      - Upanishads
+      - Bhagavad Gita
+      - Puranas
+      - Ramayana
+      - Mahabharata
+      - Other Hindu scriptures
+      
+      For verse references, provide chapter and verse numbers when possible.
+      Respond in a respectful, devotional tone suitable for spiritual guidance.
+      Question: ${prompt}
+    `
 
     const response = await fetch("http://127.0.0.1:8000/api/gemini", {
       method: "POST",
@@ -74,7 +86,7 @@ export default function ReligiousPage() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
       },
-      body: JSON.stringify({ prompt: fullPrompt }),
+      body: JSON.stringify({ prompt: scripturePrompt }),
     })
 
     if (!response.ok) {
@@ -87,7 +99,7 @@ export default function ReligiousPage() {
 
   const handleMicToggle = () => {
     if (!recognition) {
-      setMessages((prev) => [...prev, { text: t("speech_not_supported"), isUser: false }])
+      setMessages((prev) => [...prev, { text: t("speech_not_supported") || "Speech recognition not supported in your browser", isUser: false }])
       return
     }
 
@@ -108,14 +120,14 @@ export default function ReligiousPage() {
           stopSpeaking()
           setTimeout(() => speak(aiResponse, language), 300)
         } catch (error) {
-          setMessages((prev) => [...prev, { text: t("error_message"), isUser: false }])
+          setMessages((prev) => [...prev, { text: t("error_message") || "Sorry, I couldn't process your request", isUser: false }])
           setAvatarMood("neutral")
         }
       }
 
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         setIsListening(false)
-        setMessages((prev) => [...prev, { text: t("speech_error"), isUser: false }])
+        setMessages((prev) => [...prev, { text: t("speech_error") || "There was an error with speech recognition", isUser: false }])
         setAvatarMood("neutral")
         stopSpeaking()
       }
@@ -126,6 +138,26 @@ export default function ReligiousPage() {
     } else {
       recognition.stop()
       stopSpeaking()
+    }
+  }
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inputText.trim()) return
+
+    setMessages((prev) => [...prev, { text: inputText, isUser: true }])
+    setAvatarMood("thinking")
+    setInputText("")
+
+    try {
+      const aiResponse = await askGemini(inputText)
+      setMessages((prev) => [...prev, { text: aiResponse, isUser: false }])
+      setAvatarMood("religious")
+      stopSpeaking()
+      setTimeout(() => speak(aiResponse, language), 300)
+    } catch (error) {
+      setMessages((prev) => [...prev, { text: t("error_message") || "Sorry, I couldn't process your request", isUser: false }])
+      setAvatarMood("neutral")
     }
   }
 
@@ -153,7 +185,7 @@ export default function ReligiousPage() {
           transition={{ duration: 0.5 }}
         >
           <div className="flex items-center gap-2">
-            <Link href="/">
+            <Link href="/religious">
               <Button
                 variant="ghost"
                 size="icon"
@@ -166,7 +198,7 @@ export default function ReligiousPage() {
               className="text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent"
               style={{ fontSize: `${1.5 * fontSize}rem` }}
             >
-              {t("app_name")}
+              {t("hindu_scriptures") || "Hindu Scriptures"}
             </h1>
           </div>
           <div className="flex gap-2">
@@ -287,36 +319,77 @@ export default function ReligiousPage() {
           </div>
         </motion.div>
 
-        {/* Mode-specific content */}
+        {/* Scripture Quick Access */}
         <motion.div
+          className={cn("mb-6 p-4 rounded-xl shadow-lg", darkMode ? "bg-gray-800" : "bg-white")}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
         >
-          <ReligiousMode darkMode={darkMode} fontSize={fontSize} location={location} />
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2" style={{ fontSize: `${1.25 * fontSize}rem` }}>
+            <BookOpen size={24} />
+            {t("quick_access") || "Quick Access"}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {["Bhagavad Gita", "Ramayana", "Mahabharata", "Vedas", "Upanishads", "Puranas"].map((scripture) => (
+              <Button
+                key={scripture}
+                variant="outline"
+                className={cn(
+                  "text-sm py-2 h-auto",
+                  darkMode ? "hover:bg-gray-700" : "hover:bg-amber-100"
+                )}
+                onClick={() => setInputText(`Tell me about ${scripture}`)}
+              >
+                {scripture}
+              </Button>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Microphone button */}
+        {/* Input area */}
         <motion.div
-          className="fixed bottom-8 left-0 right-0 flex justify-center"
+          className="fixed bottom-8 left-0 right-0 flex justify-center px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          <motion.button
-            className={cn(
-              "p-6 rounded-full shadow-lg flex items-center justify-center",
-              isListening
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-orange-500 hover:bg-orange-600"
-            )}
-            onClick={handleMicToggle}
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
-          >
-            {isListening ? <MicOff size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
-          </motion.button>
+          <div className="max-w-4xl w-full flex gap-2">
+            <form onSubmit={handleTextSubmit} className="flex-1 flex gap-2">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={t("ask_about_scriptures") || "Ask about Hindu scriptures..."}
+                className={cn(
+                  "flex-1 p-4 rounded-full shadow-lg focus:outline-none focus:ring-2",
+                  darkMode
+                    ? "bg-gray-700 text-white focus:ring-amber-500"
+                    : "bg-white text-gray-800 focus:ring-orange-500"
+                )}
+                style={{ fontSize: `${1 * fontSize}rem` }}
+              />
+              <Button
+                type="submit"
+                className="p-4 rounded-full bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                {t("send") || "Send"}
+              </Button>
+            </form>
+            <motion.button
+              className={cn(
+                "p-4 rounded-full shadow-lg flex items-center justify-center",
+                isListening
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-orange-500 hover:bg-orange-600"
+              )}
+              onClick={handleMicToggle}
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              {isListening ? <MicOff size={24} className="text-white" /> : <Mic size={24} className="text-white" />}
+            </motion.button>
+          </div>
         </motion.div>
       </div>
     </main>
