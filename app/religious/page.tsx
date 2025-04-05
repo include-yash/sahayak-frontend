@@ -18,7 +18,6 @@ import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-
 export default function ReligiousPage() {
   const [darkMode, setDarkMode] = useState(false)
   const [fontSize, setFontSize] = useState(1)
@@ -27,9 +26,7 @@ export default function ReligiousPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [showEmergencyCall, setShowEmergencyCall] = useState(false)
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([])
-  const [avatarMood, setAvatarMood] = useState<
-    "neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping"
-  >("religious")
+  const [avatarMood, setAvatarMood] = useState<"neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping">("religious")
 
   const { t, language, setLanguage } = useTranslation()
   const { user, isAuthenticated, logout } = useAuth()
@@ -47,13 +44,17 @@ export default function ReligiousPage() {
     recognition.interimResults = false
   }
 
+  // Initialize the page - runs only once on mount
   useEffect(() => {
-    setMessages([{ text: t("religious_welcome"), isUser: false }])
-    speak(t("religious_welcome"), language)
+    const welcomeMessage = t("religious_welcome")
+    setMessages([{ text: welcomeMessage, isUser: false }])
+    speak(welcomeMessage, language)
+    
     if (isAuthenticated && !location) {
       requestLocation()
     }
-  }, [t, language, speak, isAuthenticated, location, requestLocation])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array means this runs only once on mount
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -64,8 +65,7 @@ export default function ReligiousPage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt =
-      "You are a spiritual guide. Respond with information or stories about gods, goddesses, or religious practices: "
+    const modePrompt = "You are a spiritual guide. Respond with information or stories about gods, goddesses, or religious practices: "
     const fullPrompt = modePrompt + prompt
 
     const response = await fetch("http://127.0.0.1:8000/api/gemini", {
@@ -106,7 +106,7 @@ export default function ReligiousPage() {
           setMessages((prev) => [...prev, { text: aiResponse, isUser: false }])
           setAvatarMood("religious")
           stopSpeaking()
-          speak(aiResponse, language)
+          setTimeout(() => speak(aiResponse, language), 300)
         } catch (error) {
           setMessages((prev) => [...prev, { text: t("error_message"), isUser: false }])
           setAvatarMood("neutral")
