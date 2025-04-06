@@ -36,19 +36,19 @@ export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) 
       icon: "😌",
       title: "Meditation",
       description: "Guided relaxation and mindfulness",
-      path: "/wellness/meditation",
+    
     },
     {
       icon: "🩺",
       title: "Health Tips",
       description: "General wellness advice",
-      path: "/wellness/tips",
+     
     },
     {
       icon: "🧠",
       title: "Mental Wellness",
       description: "Activities to keep your mind sharp",
-      path: "/wellness/mental",
+      
     },
   ]
 
@@ -90,7 +90,7 @@ export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) 
                   ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
                   : "bg-white hover:bg-green-50 border-green-100",
               )}
-              onClick={() => router.push(topic.path)}
+              onClick={() => topic.path && router.push(topic.path)}
             >
               <div className="text-3xl">{topic.icon}</div>
               <div>

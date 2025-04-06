@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import Avatar from "@/components/avatar"
 import ChatMessage from "@/components/chat-message"
-import SchemesMode from "@/components/modes/scheme-mode"
+import ReligiousMode from "@/components/modes/religious-mode"
 import LanguageSelector from "@/components/language-selector"
 import EmergencyCall from "@/components/emergency-call"
 import { useTranslation } from "@/hooks/use-translation"
@@ -18,7 +18,7 @@ import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
-export default function SchemesPage() {
+export default function ReligiousPage() {
   const [darkMode, setDarkMode] = useState(false)
   const [fontSize, setFontSize] = useState(1)
   const [contrast, setContrast] = useState(1)
@@ -26,7 +26,7 @@ export default function SchemesPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [showEmergencyCall, setShowEmergencyCall] = useState(false)
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([])
-  const [avatarMood, setAvatarMood] = useState<"neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping">("happy")
+  const [avatarMood, setAvatarMood] = useState<"neutral" | "happy" | "thinking" | "religious" | "wellness" | "shopping">("religious")
 
   const { t, language, setLanguage } = useTranslation()
   const { user, isAuthenticated, logout } = useAuth()
@@ -46,7 +46,7 @@ export default function SchemesPage() {
 
   // Initialize the page - runs only once on mount
   useEffect(() => {
-    const welcomeMessage = t("schemes_welcome")
+    const welcomeMessage = t("religious_welcome")
     setMessages([{ text: welcomeMessage, isUser: false }])
     speak(welcomeMessage, language)
     
@@ -65,19 +65,8 @@ export default function SchemesPage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt = "You are a government schemes assistant for senior citizens in India. Provide detailed information about schemes, eligibility, benefits, and application process. Focus on: "
-    const commonSchemes = [
-      "Pradhan Mantri Vaya Vandana Yojana (PMVVY)",
-      "Indira Gandhi National Old Age Pension Scheme (IGNOAPS)",
-      "National Programme for Health Care of the Elderly (NPHCE)",
-      "Rashtriya Vayoshri Yojana",
-      "Senior Citizens' Welfare Fund",
-      "Varishta Mediclaim Policy",
-      "Dada-Dadi Bond Scheme",
-      "State-specific pension schemes"
-    ].join(", ")
-    
-    const fullPrompt = `${modePrompt}${commonSchemes}. For the query: ${prompt}. Include eligibility age (usually 60+), documents required, benefits, and how to apply.`
+    const modePrompt = "You are a spiritual guide. Respond with information or stories about gods, goddesses, or religious practices: "
+    const fullPrompt = modePrompt + prompt
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/gemini`, {
       method: "POST",
@@ -103,7 +92,7 @@ export default function SchemesPage() {
     }
 
     setIsListening(!isListening)
-    setAvatarMood(isListening ? "thinking" : "happy")
+    setAvatarMood(isListening ? "thinking" : "religious")
 
     if (!isListening) {
       recognition.start()
@@ -115,7 +104,7 @@ export default function SchemesPage() {
         try {
           const aiResponse = await askGemini(userPrompt)
           setMessages((prev) => [...prev, { text: aiResponse, isUser: false }])
-          setAvatarMood("happy")
+          setAvatarMood("religious")
           stopSpeaking()
           setTimeout(() => speak(aiResponse, language), 300)
         } catch (error) {
@@ -144,10 +133,7 @@ export default function SchemesPage() {
     setShowEmergencyCall(true)
   }
 
-  if (!isAuthenticated) {
-    window.location.href = "/login"
-    return null
-  }
+  
 
   return (
     <main
@@ -308,7 +294,7 @@ export default function SchemesPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <SchemesMode darkMode={darkMode} fontSize={fontSize} />
+          <ReligiousMode darkMode={darkMode} fontSize={fontSize} location={location} />
         </motion.div>
 
         {/* Microphone button */}
@@ -323,7 +309,7 @@ export default function SchemesPage() {
               "p-6 rounded-full shadow-lg flex items-center justify-center",
               isListening
                 ? "bg-red-500 hover:bg-red-600"
-                : "bg-blue-500 hover:bg-blue-600"
+                : "bg-orange-500 hover:bg-orange-600"
             )}
             onClick={handleMicToggle}
             whileTap={{ scale: 0.95 }}

@@ -62,25 +62,25 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
       icon: "🛕", 
       title: t("temple_visits"), 
       description: t("temple_description"),
-      path: "/religious/temples"
+      
     },
     { 
       icon: "📖", 
       title: t("religious_stories"), 
       description: t("stories_description"),
-      path: "/religious/stories"
+      
     },
     { 
       icon: "🪔", 
       title: t("festivals"), 
       description: t("festivals_description"),
-      path: "/religious/festivals"
+      
     },
     { 
       icon: "🧘‍♀️", 
       title: t("meditation"), 
       description: t("meditation_description"),
-      path: "/religious/meditation"
+      
     },
   ]
 
@@ -183,7 +183,7 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
                   ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
                   : "bg-white hover:bg-orange-50 border-orange-100",
               )}
-              onClick={() => router.push(topic.path)}
+              onClick={() => topic.path && router.push(topic.path)}
             >
               <div className="text-3xl">{topic.icon}</div>
               <div>
