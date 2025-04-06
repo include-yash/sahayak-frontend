@@ -50,7 +50,7 @@ const AuthContext = createContext<{
 });
 
 // API base URL from environment variable or default to localhost
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/auth";
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth`;
 
 // Auth provider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

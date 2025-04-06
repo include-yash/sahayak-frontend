@@ -70,7 +70,7 @@ export default function WellnessPage() {
     const modePrompt = "You are a health assistant. just give reponse to query dont say i am ai , keep the reponse short and simple , dont use start and asterick "
     const fullPrompt = modePrompt + prompt
 
-    const response = await fetch("http://127.0.0.1:8000/api/gemini", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/gemini`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

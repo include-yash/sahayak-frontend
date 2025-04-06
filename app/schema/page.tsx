@@ -79,7 +79,7 @@ export default function SchemesPage() {
     
     const fullPrompt = `${modePrompt}${commonSchemes}. For the query: ${prompt}. Include eligibility age (usually 60+), documents required, benefits, and how to apply.`
 
-    const response = await fetch("http://127.0.0.1:8000/api/gemini", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/gemini`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -308,7 +308,7 @@ export default function SchemesPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <SchemesMode darkMode={darkMode} fontSize={fontSize} location={location} />
+          <SchemesMode darkMode={darkMode} fontSize={fontSize} />
         </motion.div>
 
         {/* Microphone button */}
