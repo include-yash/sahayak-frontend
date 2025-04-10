@@ -33,10 +33,10 @@ export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) 
       path: "/wellness/diet",
     },
     {
-      icon: "😌",
-      title: "Meditation",
-      description: "Guided relaxation and mindfulness",
-    
+      icon: "🏥",
+      title: "Nearby Hospitals",
+      description: "Helps you find nearby hospitals and pharmacies",
+      path: "/wellness/places",   
     },
     {
       icon: "🩺",

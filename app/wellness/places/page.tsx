@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTextToSpeech } from "@/hooks/use-text-to-speech"
 
 interface Place {
   properties: {
@@ -16,17 +17,17 @@ interface Place {
 }
 
 const categoryMap: { [key: string]: string } = {
-  Hinduism: "religion.place_of_worship.hinduism",
-  Islam: "religion.place_of_worship.islam",
-  Christianity: "religion.place_of_worship.christianity",
+  Hospitals: "healthcare.hospital",
+  Pharmacies: "healthcare.pharmacy",
 }
 
-export default function Places() {
+export default function HealthPlaces() {
   const [places, setPlaces] = useState<Place[]>([])
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null)
-  const [selectedReligion, setSelectedReligion] = useState("Hinduism")
+  const [selectedCategory, setSelectedCategory] = useState("Hospitals")
   const [loading, setLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  // const { speak, stop } = useTextToSpeech()
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) =>
@@ -39,7 +40,7 @@ export default function Places() {
 
     const fetchPlaces = async () => {
       setLoading(true)
-      const category = categoryMap[selectedReligion]
+      const category = categoryMap[selectedCategory]
       const url = `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${coords.lon},${coords.lat},1000&limit=20&apiKey=8656ecc3ee2b493cabcfd1d628d9a4be`
       const res = await fetch(url)
       const data = await res.json()
@@ -48,7 +49,10 @@ export default function Places() {
     }
 
     fetchPlaces()
-  }, [coords, selectedReligion])
+    return () => {
+      if (typeof stop === "function") stop()
+    }
+  }, [coords, selectedCategory])
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -70,31 +74,43 @@ export default function Places() {
           onClick={toggleDarkMode}
           className={cn("rounded-full", darkMode ? "hover:bg-gray-700" : "hover:bg-amber-200")}
         >
-          {darkMode ? (
-            <Sun size={24} className="text-white" />
-          ) : (
-            <Moon size={24} />
-          )}
+          {darkMode ? <Sun size={24} className="text-white" /> : <Moon size={24} />}
         </Button>
       </div>
 
       <div className="max-w-xl mx-auto space-y-6">
-        <motion.select
-          value={selectedReligion}
-          onChange={(e) => setSelectedReligion(e.target.value)}
-          className={cn(
-            "p-3 text-lg rounded-xl border shadow w-full",
-            darkMode ? "bg-gray-900 text-white border-gray-600" : "bg-white"
-          )}
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
+          className="relative"
         >
-          {Object.keys(categoryMap).map((religion) => (
-            <option key={religion} value={religion}>
-              {religion}
-            </option>
-          ))}
-        </motion.select>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={cn(
+              "w-full appearance-none p-3 pr-10 text-lg font-medium rounded-xl border shadow focus:outline-none transition-colors",
+              darkMode
+                ? "bg-gray-900 text-white border-gray-600"
+                : "bg-white text-orange-800 border-orange-300 focus:ring-2 focus:ring-orange-400"
+            )}
+          >
+            {Object.keys(categoryMap).map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            <svg
+              className={cn("h-5 w-5", darkMode ? "text-white" : "text-orange-500")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </motion.div>
 
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
           <motion.div
@@ -103,7 +119,7 @@ export default function Places() {
             className="text-3xl font-bold"
           >
             <span className={cn(darkMode ? "text-white" : "text-gray-700")}>Nearby </span>
-            <span className="text-orange-600">{selectedReligion} Places</span>
+            <span className="text-orange-600">{selectedCategory}</span>
           </motion.div>
 
           {loading ? (

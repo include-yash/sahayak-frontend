@@ -62,25 +62,25 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
       icon: "🛕", 
       title: t("temple_visits"), 
       description: t("temple_description"),
-      
+      path: "/religious/places"
     },
-    { 
-      icon: "📖", 
-      title: t("religious_stories"), 
-      description: t("stories_description"),
+    // { 
+    //   icon: "📖", 
+    //   title: t("religious_stories"), 
+    //   description: t("stories_description"),
       
-    },
+    // },
     { 
       icon: "🪔", 
       title: t("festivals"), 
       description: t("festivals_description"),
-      
+      path: "/religious/fest"
     },
     { 
       icon: "🧘‍♀️", 
       title: t("meditation"), 
       description: t("meditation_description"),
-      
+      path: "/breathing_exercise"
     },
   ]
 
