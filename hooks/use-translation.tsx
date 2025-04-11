@@ -125,7 +125,7 @@ const translations: Record<string, Record<string, string>> = {
     festivals_description: "Learn about upcoming festivals",
     meditation: "Meditation",
     meditation_description: "Guided spiritual meditation",
-    find_temples: "Find Nearby Temples",
+    // find_temples: "Find Nearby Temples",
     find_temples_near_me: "Find Temples Near Me",
     find_temples_nearby: "Find Temples Nearby",
     nearby_temples: "Nearby Temples",

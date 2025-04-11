@@ -76,12 +76,12 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
       description: t("festivals_description"),
       path: "/religious/fest"
     },
-    { 
-      icon: "🧘‍♀️", 
-      title: t("meditation"), 
-      description: t("meditation_description"),
-      path: "/breathing_exercise"
-    },
+    // { 
+    //   icon: "🧘‍♀️", 
+    //   title: t("meditation"), 
+    //   description: t("meditation_description"),
+    //   path: "/breathing_exercise"
+    // },
   ]
 
   return (
@@ -112,7 +112,7 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <Card className={cn("p-4", darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-orange-100")}>
+        {/* <Card className={cn("p-4", darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-orange-100")}>
           <h3 className="font-medium mb-3" style={{ fontSize: `${1.1 * fontSize}rem` }}>
             {t("find_temples")}
           </h3>
@@ -165,7 +165,7 @@ export default function ReligiousMode({ darkMode, fontSize, location }: Religiou
               ))}
             </div>
           )}
-        </Card>
+        </Card> */}
       </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">

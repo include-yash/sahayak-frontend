@@ -40,7 +40,7 @@ export default function Places() {
     const fetchPlaces = async () => {
       setLoading(true)
       const category = categoryMap[selectedReligion]
-      const url = `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${coords.lon},${coords.lat},1000&limit=20&apiKey=8656ecc3ee2b493cabcfd1d628d9a4be`
+      const url = `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${coords.lon},${coords.lat},5000&limit=10&apiKey=8656ecc3ee2b493cabcfd1d628d9a4be`
       const res = await fetch(url)
       const data = await res.json()
       setPlaces(data.features)
