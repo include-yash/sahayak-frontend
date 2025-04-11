@@ -21,12 +21,16 @@ const translations: Record<string, Record<string, string>> = {
     wellness_mode: "Wellness Guide",
     shopping_mode: "Shopping Assistant",
     scheme_mode: "Government Schemes",
+    rag_mode: "AI Companion",
+    finder_mode: "Community Finder",
 
     // Mode descriptions
     religious_description: "Discuss spiritual topics, stories, and traditions",
     wellness_description: "Health tips, exercises, and medication reminders",
     shopping_description: "Order groceries, food, or other items online",
     scheme_description: "Information about benefits and programs for seniors",
+    rag_description: "Get real-time answers and guidance using advanced AI",
+    finder_description: "Locate nearby services and community resources",
 
     // Religious mode
     religious_companion: "Religious Companion",

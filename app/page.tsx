@@ -41,12 +41,6 @@ export default function Home() {
     setShowEmergencyCall(true)
   }
 
-  // ✅ Wait for auth loading before redirecting
-  if (!isAuthenticated && !authLoading) {
-    window.location.href = "/login"
-    return null
-  }
-
   if (isLoading || authLoading) {
     return <WelcomeAnimation />
   }
@@ -168,13 +162,40 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Mode Selection */}
+        {/* Mode Selection - Updated with 6 modes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
+          {/* New RAG Companion Mode */}
+          <Link href="/rag-companion">
+            <ModeCard
+              title={t("rag_mode")}
+              description={t("rag_description")}
+              icon="🤖"
+              color="from-teal-400 to-blue-500"
+              darkMode={darkMode}
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
+          </Link>
+
+          {/* New Finder/Map Mode */}
+          <Link href="/finder">
+            <ModeCard
+              title={t("finder_mode")}
+              description={t("finder_description")}
+              icon="🗺️"
+              color="from-lime-400 to-emerald-500"
+              darkMode={darkMode}
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
+          </Link>
+
+          {/* Existing Modes */}
           <Link href="/religious">
             <ModeCard
               title={t("religious_mode")}
