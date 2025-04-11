@@ -1,0 +1,265 @@
+/* Base Styles */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.address-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.address-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.controls select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+}
+
+#calculate-route {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-end;
+  margin-top: 24px;
+}
+
+#calculate-route:hover {
+  background-color: #2980b9;
+}
+
+#calculate-route:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+#calculate-route.calculating {
+  position: relative;
+  padding-left: 44px;
+}
+
+/* Map Container */
+#map-container {
+  height: 400px;
+  margin-bottom: 20px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Route Info */
+.route-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.route-info h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #2c3e50;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+/* Error Message */
+.error {
+  color: #e74c3c;
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #fdecea;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+/* Suggestions Dropdown */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #bdc3c7;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.suggestion-item {
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: #f8f9fa;
+}
+
+/* Custom Markers */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.origin-marker {
+  background-color: #2ecc71;
+}
+
+.destination-marker {
+  background-color: #e74c3c;
+}
+
+/* Loading Spinner */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .control-group {
+    min-width: 100%;
+  }
+  
+  #calculate-route {
+    width: 100%;
+    margin-top: 0;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
