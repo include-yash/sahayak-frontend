@@ -2,6 +2,7 @@ import type React from "react"
 import { TranslationProvider } from "@/hooks/use-translation"
 import { AuthProvider } from "@/hooks/use-auth"
 import "./globals.css"
+import "leaflet/dist/leaflet.css";
 
 export default function RootLayout({
   children,

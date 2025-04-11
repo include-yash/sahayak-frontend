@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import path from "path"
 
 interface WellnessModeProps {
   darkMode: boolean
@@ -40,16 +41,17 @@ export default function WellnessMode({ darkMode, fontSize }: WellnessModeProps) 
     },
     {
       icon: "🩺",
-      title: "Health Tips",
-      description: "General wellness advice",
+      title: "Meditation",
+      description: "Guided meditation sessions for relaxation",
+      path: "/breathing_exercise",
      
     },
-    {
-      icon: "🧠",
-      title: "Mental Wellness",
-      description: "Activities to keep your mind sharp",
+    // {
+    //   icon: "🧠",
+    //   title: "Mental Wellness",
+    //   description: "Activities to keep your mind sharp",
       
-    },
+    // },
   ]
 
   return (
