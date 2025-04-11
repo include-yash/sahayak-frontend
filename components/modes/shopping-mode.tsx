@@ -69,66 +69,7 @@ export default function CafeMode({ darkMode, fontSize, location }: NearbyModePro
         {t("shopping_welcome_message")}
       </motion.p>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <Card className={cn("p-4", darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-orange-100")}>
-          <h3 className="font-medium mb-3" style={{ fontSize: `${1.1 * fontSize}rem` }}>
-            {t("find_places")}
-          </h3>
-
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSearch}
-              disabled={isSearching}
-              className="w-full bg-orange-500 hover:bg-orange-600 flex gap-2"
-            >
-              <MapPin size={18} />
-              {location ? t("find_places_near_me") : t("find_places_nearby")}
-            </Button>
-          </div>
-
-          {isSearching && (
-            <div className="flex justify-center my-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-            </div>
-          )}
-
-          {places.length > 0 && (
-            <div className="mt-4 space-y-3">
-              <h4 className="font-medium" style={{ fontSize: `${1 * fontSize}rem` }}>
-                {t("nearby_places")}
-              </h4>
-
-              {places.map((place) => (
-                <motion.div
-                  key={place.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={cn("p-3 rounded-lg", darkMode ? "bg-gray-700" : "bg-orange-50")}
-                >
-                  <div className="flex justify-between">
-                    <h5 className="font-medium" style={{ fontSize: `${1 * fontSize}rem` }}>
-                      {place.name}
-                    </h5>
-                    <span className="text-sm">{place.distance}</span>
-                  </div>
-
-                  <p className="text-sm text-gray-500 dark:text-gray-400" style={{ fontSize: `${0.85 * fontSize}rem` }}>
-                    {place.category}
-                  </p>
-
-                  <p className="text-sm text-gray-500 dark:text-gray-400" style={{ fontSize: `${0.85 * fontSize}rem` }}>
-                    {place.address}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </motion.div>
+      
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
         {topics.map((topic, index) => (
