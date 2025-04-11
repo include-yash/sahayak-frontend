@@ -41,6 +41,12 @@ export default function Home() {
     setShowEmergencyCall(true)
   }
 
+  // ✅ Wait for auth loading before redirecting
+  if (!isAuthenticated && !authLoading) {
+    window.location.href = "/login"
+    return null
+  }  
+
   if (isLoading || authLoading) {
     return <WelcomeAnimation />
   }
