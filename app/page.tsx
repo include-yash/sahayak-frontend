@@ -41,7 +41,6 @@ export default function Home() {
     setShowEmergencyCall(true)
   }
 
-  // ✅ Wait for auth loading before redirecting
   if (!isAuthenticated && !authLoading) {
     window.location.href = "/login"
     return null
@@ -56,50 +55,60 @@ export default function Home() {
       className={cn(
         "min-h-screen transition-colors duration-300",
         darkMode
-          ? "bg-gradient-to-b from-gray-900 to-gray-800 text-white"
-          : "bg-gradient-to-b from-amber-50 to-orange-100 text-gray-800"
+          ? "bg-gray-900 text-white"
+          : "bg-amber-50 text-gray-800"
       )}
     >
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
-          className="flex justify-between items-center mb-6"
+          className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <h1
-            className="text-3xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent"
+            className="text-2xl sm:text-3xl font-semibold text-amber-600"
             style={{ fontSize: `${1.5 * fontSize}rem` }}
           >
             {t("app_name")}
           </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleEmergencyCall}
-              className="rounded-full bg-red-500 hover:bg-red-600 text-white"
+              className="rounded-full bg-red-500 hover:bg-red-600 text-white h-10 w-10"
             >
-              <Phone size={24} />
+              <Phone size={20} />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowSettings(!showSettings)}
-              className={cn("rounded-full", darkMode ? "hover:bg-gray-700" : "hover:bg-amber-200")}
+              className={cn(
+                "rounded-full h-10 w-10",
+                darkMode ? "hover:bg-gray-700" : "hover:bg-amber-100"
+              )}
             >
-              <Settings size={24} />
+              <Settings size={20} />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleDarkMode}
-              className={cn("rounded-full", darkMode ? "hover:bg-gray-700" : "hover:bg-amber-200")}
+              className={cn(
+                "rounded-full h-10 w-10",
+                darkMode ? "hover:bg-gray-700" : "hover:bg-amber-100"
+              )}
             >
-              {darkMode ? <Sun size={24} /> : <Moon size={24} />}
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
-            <LanguageSelector currentLanguage={language} onLanguageChange={setLanguage} darkMode={darkMode} />
+            <LanguageSelector 
+              currentLanguage={language} 
+              onLanguageChange={setLanguage} 
+              darkMode={darkMode} 
+            />
           </div>
         </motion.div>
 
@@ -110,20 +119,32 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className={cn("mb-6 p-4 rounded-xl shadow-lg", darkMode ? "bg-gray-800" : "bg-white")}
+              className={cn(
+                "mb-8 p-6 rounded-lg shadow-sm border",
+                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              )}
             >
-              <h2 className="text-xl font-semibold mb-4" style={{ fontSize: `${1.25 * fontSize}rem` }}>
+              <h2 
+                className="text-lg font-medium mb-4" 
+                style={{ fontSize: `${1.25 * fontSize}rem` }}
+              >
                 {t("settings")}
               </h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span style={{ fontSize: `${1 * fontSize}rem` }}>{t("dark_mode")}</span>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <span style={{ fontSize: `${1 * fontSize}rem` }}>
+                    {t("dark_mode")}
+                  </span>
                   <Switch checked={darkMode} onCheckedChange={toggleDarkMode} />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span style={{ fontSize: `${1 * fontSize}rem` }}>{t("text_size")}</span>
-                    <span style={{ fontSize: `${1 * fontSize}rem` }}>{Math.round(fontSize * 100)}%</span>
+                    <span style={{ fontSize: `${1 * fontSize}rem` }}>
+                      {t("text_size")}
+                    </span>
+                    <span style={{ fontSize: `${1 * fontSize}rem` }}>
+                      {Math.round(fontSize * 100)}%
+                    </span>
                   </div>
                   <Slider
                     value={[fontSize]}
@@ -131,12 +152,17 @@ export default function Home() {
                     max={1.5}
                     step={0.1}
                     onValueChange={(value) => setFontSize(value[0])}
+                    className="mt-2"
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span style={{ fontSize: `${1 * fontSize}rem` }}>{t("contrast")}</span>
-                    <span style={{ fontSize: `${1 * fontSize}rem` }}>{Math.round(contrast * 100)}%</span>
+                    <span style={{ fontSize: `${1 * fontSize}rem` }}>
+                      {t("contrast")}
+                    </span>
+                    <span style={{ fontSize: `${1 * fontSize}rem` }}>
+                      {Math.round(contrast * 100)}%
+                    </span>
                   </div>
                   <Slider
                     value={[contrast]}
@@ -144,13 +170,16 @@ export default function Home() {
                     max={1.2}
                     step={0.1}
                     onValueChange={(value) => setContrast(value[0])}
+                    className="mt-2"
                   />
                 </div>
-                <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={logout}>
-                    {t("logout")}
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={logout}
+                >
+                  {t("logout")}
+                </Button>
               </div>
             </motion.div>
           )}
@@ -168,14 +197,13 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Mode Selection - Updated with 6 modes */}
+        {/* Mode Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
         >
-          {/* New RAG Companion Mode */}
           <Link href="/rag-companion">
             <ModeCard
               title={t("rag_mode")}
@@ -187,8 +215,6 @@ export default function Home() {
               onClick={() => {}}
             />
           </Link>
-
-          {/* New Finder/Map Mode */}
           <Link href="/finder">
             <ModeCard
               title={t("finder_mode")}
@@ -200,8 +226,6 @@ export default function Home() {
               onClick={() => {}}
             />
           </Link>
-
-          {/* Existing Modes */}
           <Link href="/religious">
             <ModeCard
               title={t("religious_mode")}
@@ -245,7 +269,8 @@ export default function Home() {
               fontSize={fontSize}
               onClick={() => {}}
             />
-            <Link href="/timeline">
+          </Link>
+          <Link href="/timeline">
             <ModeCard
               title={t("legacy_mode")}
               description={t("legacy_mode")}
@@ -255,7 +280,6 @@ export default function Home() {
               fontSize={fontSize}
               onClick={() => {}}
             />
-          </Link>
           </Link>
         </motion.div>
       </div>
