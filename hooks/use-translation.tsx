@@ -23,6 +23,8 @@ const translations: Record<string, Record<string, string>> = {
     scheme_mode: "Government Schemes",
     rag_mode: "AI Companion",
     finder_mode: "Community Finder",
+    legacy_mode: "Your Legacy",
+
 
     // Mode descriptions
     religious_description: "Discuss spiritual topics, stories, and traditions",
@@ -31,6 +33,7 @@ const translations: Record<string, Record<string, string>> = {
     scheme_description: "Information about benefits and programs for seniors",
     rag_description: "Get real-time answers and guidance using advanced AI",
     finder_description: "Locate nearby services and community resources",
+    legacy_description: "Preserve and share your life stories, values, and digital heritage",
 
     // Religious mode
     religious_companion: "Religious Companion",
@@ -162,12 +165,15 @@ const translations: Record<string, Record<string, string>> = {
     wellness_mode: "स्वास्थ्य मार्गदर्शक",
     shopping_mode: "खरीदारी सहायक",
     scheme_mode: "सरकारी योजनाएँ",
+    legacy_mode: "आपकी विरासत",
 
     // Mode descriptions
     religious_description: "आध्यात्मिक विषयों, कहानियों और परंपराओं पर चर्चा करें",
     wellness_description: "स्वास्थ्य टिप्स, व्यायाम और दवा रिमाइंडर",
     shopping_description: "किराना, भोजन या अन्य वस्तुएं ऑनलाइन ऑर्डर करें",
     scheme_description: "वरिष्ठ नागरिकों के लिए लाभ और कार्यक्रमों की जानकारी",
+    
+    legacy_description: "अपने जीवन की कहानियों, मूल्यों और डिजिटल विरासत को संरक्षित और साझा करें",
 
     // Religious mode
     religious_companion: "धार्मिक साथी",
@@ -301,6 +307,8 @@ const translations: Record<string, Record<string, string>> = {
     scheme_mode: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
     rag_mode: "AI ಸಂಗಾತಿ",
     finder_mode: "ಸಮುದಾಯ ಹುಡುಕುತ್ತದೆ",
+    legacy_mode: "ನಿಮ್ಮ ಪರಂಪರೆ",
+    
 
     // Mode descriptions
     religious_description: "ಆಧ್ಯಾತ್ಮಿಕ ವಿಷಯಗಳು, ಕಥೆಗಳು ಮತ್ತು ಸಂಪ್ರದಾಯಗಳ ಬಗ್ಗೆ ಚರ್ಚಿಸಿ",
@@ -309,6 +317,7 @@ const translations: Record<string, Record<string, string>> = {
     scheme_description: "ವೃದ್ಧರಿಗಾಗಿ ಪ್ರಯೋಜನಗಳು ಮತ್ತು ಕಾರ್ಯಕ್ರಮಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ",
     rag_description: "ಸುಧಾರಿತ AI ಬಳಸಿ ನೈಜ-ಸಮಯದ ಉತ್ತರಗಳು ಮತ್ತು ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ",
     finder_description: "ಹತ್ತಿರದ ಸೇವೆಗಳು ಮತ್ತು ಸಮುದಾಯ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಹುಡುಕಿ",
+    legacy_description: "ನಿಮ್ಮ ಜೀವನದ ಕಥೆಗಳು, ಮೌಲ್ಯಗಳು ಮತ್ತು ಡಿಜಿಟಲ್ ಪರಂಪರೆಯನ್ನು ಸಂರಕ್ಷಿಸಿ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಿ",
 
     // Religious mode
     religious_companion: "ಧಾರ್ಮಿಕ ಸಂಗಾತಿ",
