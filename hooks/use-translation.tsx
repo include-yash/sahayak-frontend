@@ -23,7 +23,7 @@ const translations: Record<string, Record<string, string>> = {
     scheme_mode: "Government Schemes",
     rag_mode: "AI Companion",
     finder_mode: "Community Finder",
-    legacy_mode: "Your Legacy",
+    legacy_mode: "Legacy Mode",
 
 
     // Mode descriptions
