@@ -21,6 +21,7 @@ export default function LanguageSelector({ currentLanguage, onLanguageChange, da
     { code: "ta", name: "தமிழ்" },
     { code: "te", name: "తెలుగు" },
     { code: "bn", name: "বাংলা" },
+    { code: "kn", name: "ಕನ್ನಡ" },
   ]
 
   return (

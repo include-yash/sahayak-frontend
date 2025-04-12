@@ -64,7 +64,59 @@ export default function SchemePage() {
     if (!token) {
       throw new Error("No authentication token found")
     }
-    const modePrompt = "You are a government scheme expert. Provide details about subsidies, eligibility criteria, and application processes: "
+    const modePrompt = `Act as an expert on Indian state government welfare schemes. Provide verified details about [Scheme Name/Keywords - e.g., 'farmers', 'housing', 'women empowerment'] in [State Name - e.g., 'Karnataka', 'Punjab', 'Tamil Nadu']. Follow this strict format:
+
+1. Scheme Overview  
+Official Name:  
+  
+Launch Year + Last Update:  
+  
+Governing Department/Ministry:  
+  
+Objective: (1 sentence)  
+  
+Source: (Official state/central government link)  
+
+2. Subsidy/Benefits  
+Type: (Direct Cash Transfer / Interest Subsidy / Free Ration / etc.)  
+  
+Amount/Coverage: (e.g., "₹6,000/year for farmers" or "Free healthcare up to ₹5L")  
+  
+Target Group: (Farmers/Women/SC-ST/OBC/MSMEs/Students/Disabled)  
+
+3. Eligibility (State-Specific)  
+Mandatory Documents: (Aadhaar, Voter ID, Income Certificate, Caste Certificate, etc.)  
+  
+Residency Requirement: (Must be a resident of [State] for X years)  
+  
+Income/Age/Gender/Caste Criteria:  
+  
+Exclusions: (e.g., "Taxpayers earning >₹10L/year")  
+
+4. Application Process  
+Online:  
+  
+Portal Link: (State Seva Kendhra/Central Govt. Portal)  
+  
+Steps: (1. Register → 2. Upload Docs → 3. Submit)  
+  
+Offline:  
+  
+Nearest Office: (CSC/Block Office/Gram Panchayat)  
+  
+Required Forms: (Form XYZ available at [location])  
+  
+Helpline: (Toll-free number/email)  
+
+5. Pro Tips for [State] Applicants  
+Processing Time: (e.g., "30-60 days for verification")  
+  
+Tracking: (SMS format like SCHEME <APPID> to 12345 or portal link)  
+  
+Common Mistakes: (e.g., "Incomplete income proof" or "Wrong bank details")  
+  
+Disclaimer: "Verify updates on [Official State Portal] before applying. Policies may change."`;
+
     const fullPrompt = modePrompt + prompt
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/gemini`, {
