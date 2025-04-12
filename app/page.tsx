@@ -245,6 +245,17 @@ export default function Home() {
               fontSize={fontSize}
               onClick={() => {}}
             />
+            <Link href="/timeline">
+            <ModeCard
+              title={t("legacy_mode")}
+              description={t("legacy_mode")}
+              icon="🧓🏻"
+              color="from-teal-400 to-blue-500"
+              darkMode={darkMode}
+              fontSize={fontSize}
+              onClick={() => {}}
+            />
+          </Link>
           </Link>
         </motion.div>
       </div>
