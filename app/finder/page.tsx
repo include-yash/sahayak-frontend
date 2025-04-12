@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import L from 'leaflet';
-import '../styles/GeoifyRoutePlanner.css';
+import dynamic from 'next/dynamic';
+
 interface Address {
   formatted: string;
   coordinates: { lat: number; lng: number };
@@ -14,8 +14,7 @@ interface Address {
 }
 
 const GeoifyRoutePlanner = () => {
-  const API_KEY = '8656ecc3ee2b493cabcfd1d628d9a4be'; // Replace with your actual Geoapify API key
-
+  const API_KEY = '8656ecc3ee2b493cabcfd1d628d9a4be';
   const [origin, setOrigin] = useState<Address | null>(null);
   const [destination, setDestination] = useState<Address | null>(null);
   const [originSuggestions, setOriginSuggestions] = useState<Address[]>([]);
@@ -29,51 +28,57 @@ const GeoifyRoutePlanner = () => {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [L, setL] = useState<any>(null);
 
   const originInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const mapRef = useRef<any>(null);
+  const routeLayerRef = useRef<any>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Load Leaflet CSS safely
   useEffect(() => {
-    if (document.head.querySelector('link[href*="leaflet"]')) return;
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    link.crossOrigin = 'anonymous';
-    link.onerror = () => console.error('Failed to load Leaflet CSS');
-    document.head.appendChild(link);
-
-    return () => {
-      if (link.parentNode === document.head) {
-        document.head.removeChild(link);
-      }
-    };
+    setIsClient(true);
   }, []);
 
-  // Initialize Leaflet map with error handling
   useEffect(() => {
-    if (mapRef.current || typeof window === 'undefined') return;
+    if (!isClient) return;
+
+    const loadLeaflet = async () => {
+      try {
+        const Leaflet = (await import('leaflet')).default;
+        setL(Leaflet);
+
+        if (!document.head.querySelector('link[href*="leaflet"]')) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          link.crossOrigin = 'anonymous';
+          document.head.appendChild(link);
+        }
+      } catch (err) {
+        console.error('Failed to load Leaflet:', err);
+        setError('Failed to load map. Please refresh the page.');
+      }
+    };
+
+    loadLeaflet();
+  }, [isClient]);
+
+  useEffect(() => {
+    if (!L || !isClient) return;
+
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer || mapRef.current) return;
 
     try {
-      const mapContainer = document.getElementById('map-container');
-      if (!mapContainer) {
-        throw new Error('Map container not found');
-      }
-
-      mapRef.current = L.map(mapContainer, { 
-        minZoom: 2, 
+      mapRef.current = L.map(mapContainer, {
+        minZoom: 2,
         maxZoom: 20,
-        zoomControl: false // We'll add it manually later
+        zoomControl: false
       }).setView([12.9716, 77.5946], 12);
 
-      // Add zoom control with better position
-      L.control.zoom({
-        position: 'topright'
-      }).addTo(mapRef.current);
+      L.control.zoom({ position: 'topright' }).addTo(mapRef.current);
 
       const tileLayer = L.tileLayer(
         `https://api.geoapify.com/v1/tile/klokantech-basic/{z}/{x}/{y}.png?apiKey=${API_KEY}`,
@@ -85,25 +90,11 @@ const GeoifyRoutePlanner = () => {
         }
       ).addTo(mapRef.current);
 
-      tileLayer.on('tileerror', (error) => {
-        console.error('Tile error:', error);
-        setError('Map tiles failed to load. Please refresh the page.');
-      });
-
       routeLayerRef.current = L.layerGroup().addTo(mapRef.current);
-
-      // Handle map initialization errors
-      mapRef.current.on('load', () => {
-        console.log('Map successfully loaded');
-      });
-
-      mapRef.current.on('error', () => {
-        setError('Failed to initialize map. Please check your internet connection.');
-      });
 
     } catch (err) {
       console.error('Map initialization error:', err);
-      setError('Failed to initialize map. Please try again later.');
+      setError('Failed to initialize map. Please try again.');
     }
 
     return () => {
@@ -112,17 +103,15 @@ const GeoifyRoutePlanner = () => {
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [L, isClient]);
 
-  // Debounced address input handler
   const handleAddressInput = async (input: string, isOrigin: boolean) => {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
 
     if (!input || input.length < 3) {
-      if (isOrigin) setOriginSuggestions([]);
-      else setDestSuggestions([]);
+      isOrigin ? setOriginSuggestions([]) : setDestSuggestions([]);
       return;
     }
 
@@ -132,50 +121,30 @@ const GeoifyRoutePlanner = () => {
           `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(input)}&apiKey=${API_KEY}&filter=countrycode:in&limit=5`
         );
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch suggestions: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
 
         const data = await response.json();
-        
-        if (!data.features) {
-          throw new Error('Invalid response format from geocoding service');
-        }
-
-        const suggestions = data.features.map((feature: any) => ({
+        const suggestions = data.features?.map((feature: any) => ({
           formatted: feature.properties.formatted || 'Unnamed location',
           coordinates: {
             lat: feature.geometry?.coordinates[1] ?? 0,
             lng: feature.geometry?.coordinates[0] ?? 0,
           },
-          street: feature.properties.street || undefined,
-          housenumber: feature.properties.housenumber || undefined,
-          postcode: feature.properties.postcode || undefined,
-          city: feature.properties.city || undefined,
-          country: feature.properties.country || undefined,
-        })).filter((sug: Address) => sug.coordinates.lat !== 0 && sug.coordinates.lng !== 0);
+          ...feature.properties
+        })).filter((sug: Address) => sug.coordinates.lat !== 0 && sug.coordinates.lng !== 0) || [];
 
-        if (isOrigin) {
-          setOriginSuggestions(suggestions);
-        } else {
-          setDestSuggestions(suggestions);
-        }
-
+        isOrigin ? setOriginSuggestions(suggestions) : setDestSuggestions(suggestions);
+        setError(null);
       } catch (err: any) {
         console.error('Autocomplete error:', err);
         setError(err.message);
-        if (isOrigin) {
-          setOriginSuggestions([]);
-        } else {
-          setDestSuggestions([]);
-        }
+        isOrigin ? setOriginSuggestions([]) : setDestSuggestions([]);
       }
     }, 300);
   };
 
-  // Handle suggestion selection with validation
   const handleSuggestionSelect = (address: Address, isOrigin: boolean) => {
-    if (!address.coordinates || !address.formatted) {
+    if (!address.coordinates) {
       setError('Invalid address selected');
       return;
     }
@@ -183,34 +152,21 @@ const GeoifyRoutePlanner = () => {
     if (isOrigin) {
       setOrigin(address);
       setOriginSuggestions([]);
-      if (originInputRef.current) {
-        originInputRef.current.value = address.formatted;
-      }
+      if (originInputRef.current) originInputRef.current.value = address.formatted;
     } else {
       setDestination(address);
       setDestSuggestions([]);
-      if (destInputRef.current) {
-        destInputRef.current.value = address.formatted;
-      }
+      if (destInputRef.current) destInputRef.current.value = address.formatted;
     }
 
-    setError(null);
-    
-    // Update map view if both coordinates are valid
-    if (mapRef.current && address.coordinates.lat && address.coordinates.lng) {
+    if (mapRef.current) {
       mapRef.current.setView([address.coordinates.lat, address.coordinates.lng], 14);
     }
   };
 
-  // Calculate route with enhanced error handling
   const calculateRoute = async () => {
     if (!origin || !destination) {
-      setError('Please select both origin and destination addresses');
-      return;
-    }
-
-    if (!origin.coordinates || !destination.coordinates) {
-      setError('Invalid coordinates for selected addresses');
+      setError('Please select both origin and destination');
       return;
     }
 
@@ -222,101 +178,78 @@ const GeoifyRoutePlanner = () => {
         `https://api.geoapify.com/v1/routing?waypoints=${origin.coordinates.lat},${origin.coordinates.lng}|${destination.coordinates.lat},${destination.coordinates.lng}&mode=${travelMode}&apiKey=${API_KEY}`
       );
 
-      if (!response.ok) {
-        throw new Error(`Routing failed: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Routing failed: ${response.statusText}`);
 
       const data = await response.json();
-      
-      if (!data.features || data.features.length === 0) {
-        throw new Error('No route found between the selected locations');
-      }
+      if (!data.features?.length) throw new Error('No route found');
 
       const route = data.features[0];
-      if (!route.geometry || !route.properties) {
-        throw new Error('Invalid route data received');
-      }
-
       displayRoute(route);
       displayRouteInfo(route);
-
     } catch (err: any) {
       console.error('Routing error:', err);
       setError(err.message);
-      if (routeLayerRef.current) {
-        routeLayerRef.current.clearLayers();
-      }
+      if (routeLayerRef.current) routeLayerRef.current.clearLayers();
     } finally {
       setIsCalculating(false);
     }
   };
 
-  // Display route with validation
   const displayRoute = (route: any) => {
-    if (!mapRef.current || !routeLayerRef.current) {
-      console.error('Map or route layer not initialized');
-      return;
-    }
+    if (!L || !mapRef.current || !routeLayerRef.current) return;
 
     routeLayerRef.current.clearLayers();
 
     try {
       const coordinates = route.geometry.coordinates[0].map(
-        ([lng, lat]: [number, number]) => [lat, lng] as [number, number]
+        ([lng, lat]: [number, number]) => [lat, lng]
       );
 
-      const polyline = L.polyline(coordinates, { 
-        color: '#3b82f6', 
+      const polyline = L.polyline(coordinates, {
+        color: '#3b82f6',
         weight: 5,
         opacity: 0.7,
         lineJoin: 'round'
       }).addTo(routeLayerRef.current);
 
-      // Add markers with better styling
-      if (origin && origin.coordinates) {
-        const originMarker = L.marker([origin.coordinates.lat, origin.coordinates.lng], {
-          icon: L.divIcon({ 
+      if (origin?.coordinates) {
+        L.marker([origin.coordinates.lat, origin.coordinates.lng], {
+          icon: L.divIcon({
             className: 'custom-marker origin-marker',
             html: 'A',
             iconSize: [30, 30]
           })
-        }).addTo(routeLayerRef.current);
-        originMarker.bindPopup(`<b>Origin:</b> ${origin.formatted}`).openPopup();
+        }).addTo(routeLayerRef.current).bindPopup(`<b>Origin:</b> ${origin.formatted}`).openPopup();
       }
 
-      if (destination && destination.coordinates) {
-        const destMarker = L.marker([destination.coordinates.lat, destination.coordinates.lng], {
-          icon: L.divIcon({ 
+      if (destination?.coordinates) {
+        L.marker([destination.coordinates.lat, destination.coordinates.lng], {
+          icon: L.divIcon({
             className: 'custom-marker destination-marker',
             html: 'B',
             iconSize: [30, 30]
           })
-        }).addTo(routeLayerRef.current);
-        destMarker.bindPopup(`<b>Destination:</b> ${destination.formatted}`).openPopup();
+        }).addTo(routeLayerRef.current).bindPopup(`<b>Destination:</b> ${destination.formatted}`).openPopup();
       }
 
-      // Fit bounds with padding
       if (coordinates.length > 1) {
         const bounds = polyline.getBounds();
         if (bounds.isValid()) {
-          mapRef.current.fitBounds(bounds, { 
+          mapRef.current.fitBounds(bounds, {
             padding: [50, 50],
-            maxZoom: 16,
-            animate: true
+            maxZoom: 16
           });
         }
       }
-
     } catch (err) {
       console.error('Route display error:', err);
-      setError('Failed to display the route on map');
+      setError('Failed to display route');
     }
   };
 
-  // Format route info with validation
   const displayRouteInfo = (route: any) => {
     if (!route.properties) {
-      setError('Invalid route properties');
+      setError('Invalid route data');
       return;
     }
 
@@ -334,54 +267,41 @@ const GeoifyRoutePlanner = () => {
         walk: 'Walking',
         bike: 'Bicycling',
         transit: 'Public Transit',
-      }[travelMode] || 'Unknown';
-
-      const optimizationDisplay = {
-        fastest: 'Fastest Route',
-        shortest: 'Shortest Distance',
-        balanced: 'Balanced Route',
-      }[optimization] || 'Unknown';
+      }[travelMode];
 
       setRouteInfo({
         distance,
         duration,
-        routeType: `${modeDisplay} (${optimizationDisplay})`,
+        routeType: `${modeDisplay} (${optimization.charAt(0).toUpperCase() + optimization.slice(1)} Route)`,
       });
-
     } catch (err) {
-      console.error('Route info formatting error:', err);
-      setError('Failed to process route information');
+      console.error('Route info error:', err);
+      setError('Failed to process route info');
     }
   };
 
   return (
-    <div className="container">
-      <h1>Geoify Route Planner</h1>
-      <p className="subtitle">Plan your route across India</p>
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h1 className="text-2xl font-bold text-center mb-2">Geoify Route Planner</h1>
+      <p className="text-center text-gray-600 mb-6">Plan your route across India</p>
 
-      <div className="input-group">
-        <label htmlFor="origin-input">Origin:</label>
-        <div className="input-wrapper">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">Origin:</label>
           <input
-            id="origin-input"
             ref={originInputRef}
             type="text"
             placeholder="Enter starting location"
             onChange={(e) => handleAddressInput(e.target.value, true)}
-            onFocus={() => {
-              setOriginSuggestions([]);
-              setError(null);
-            }}
-            className="address-input"
-            aria-label="Origin address"
+            className="w-full p-2 border rounded"
           />
           {originSuggestions.length > 0 && (
-            <ul className="suggestions-dropdown">
+            <ul className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg">
               {originSuggestions.map((sug, idx) => (
                 <li
                   key={`origin-${idx}`}
                   onClick={() => handleSuggestionSelect(sug, true)}
-                  className="suggestion-item"
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
                 >
                   {sug.formatted}
                 </li>
@@ -389,31 +309,23 @@ const GeoifyRoutePlanner = () => {
             </ul>
           )}
         </div>
-      </div>
 
-      <div className="input-group">
-        <label htmlFor="dest-input">Destination:</label>
-        <div className="input-wrapper">
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">Destination:</label>
           <input
-            id="dest-input"
             ref={destInputRef}
             type="text"
             placeholder="Enter destination"
             onChange={(e) => handleAddressInput(e.target.value, false)}
-            onFocus={() => {
-              setDestSuggestions([]);
-              setError(null);
-            }}
-            className="address-input"
-            aria-label="Destination address"
+            className="w-full p-2 border rounded"
           />
           {destSuggestions.length > 0 && (
-            <ul className="suggestions-dropdown">
+            <ul className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg">
               {destSuggestions.map((sug, idx) => (
                 <li
                   key={`dest-${idx}`}
                   onClick={() => handleSuggestionSelect(sug, false)}
-                  className="suggestion-item"
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
                 >
                   {sug.formatted}
                 </li>
@@ -423,14 +335,14 @@ const GeoifyRoutePlanner = () => {
         </div>
       </div>
 
-      <div className="controls">
-        <div className="control-group">
-          <label htmlFor="travel-mode">Travel Mode:</label>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex-1 min-w-[200px]">
+          <label className="block text-sm font-medium mb-1">Travel Mode:</label>
           <select
-            id="travel-mode"
             value={travelMode}
             onChange={(e) => setTravelMode(e.target.value as any)}
             disabled={isCalculating}
+            className="w-full p-2 border rounded"
           >
             <option value="drive">Driving</option>
             <option value="walk">Walking</option>
@@ -439,13 +351,13 @@ const GeoifyRoutePlanner = () => {
           </select>
         </div>
 
-        <div className="control-group">
-          <label htmlFor="route-optimization">Optimization:</label>
+        <div className="flex-1 min-w-[200px]">
+          <label className="block text-sm font-medium mb-1">Optimization:</label>
           <select
-            id="route-optimization"
             value={optimization}
             onChange={(e) => setOptimization(e.target.value as any)}
             disabled={isCalculating}
+            className="w-full p-2 border rounded"
           >
             <option value="fastest">Fastest Route</option>
             <option value="shortest">Shortest Distance</option>
@@ -453,55 +365,62 @@ const GeoifyRoutePlanner = () => {
           </select>
         </div>
 
-        <button
-          id="calculate-route"
-          onClick={calculateRoute}
-          disabled={isCalculating || !origin || !destination}
-          className={isCalculating ? 'calculating' : ''}
-        >
-          {isCalculating ? (
-            <>
-              <span className="spinner"></span>
-              Calculating...
-            </>
-          ) : (
-            'Calculate Route'
-          )}
-        </button>
+        <div className="flex items-end">
+          <button
+            onClick={calculateRoute}
+            disabled={isCalculating || !origin || !destination}
+            className={`px-4 py-2 rounded text-white ${isCalculating || !origin || !destination ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'} flex items-center`}
+          >
+            {isCalculating ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating...
+              </>
+            ) : 'Calculate Route'}
+          </button>
+        </div>
       </div>
 
-      <div id="map-container" aria-label="Map" tabIndex={0}></div>
+      <div id="map-container" className="h-96 w-full rounded-lg border mb-4"></div>
 
       {routeInfo && (
-        <div className="route-info">
-          <h3>Route Information</h3>
-          <div className="info-grid">
+        <div className="bg-gray-50 p-4 rounded-lg mb-4">
+          <h3 className="font-bold mb-2">Route Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <span className="info-label">Distance:</span>
-              <span id="route-distance" className="info-value">{routeInfo.distance}</span>
+              <span className="block text-sm text-gray-600">Distance:</span>
+              <span className="font-medium">{routeInfo.distance}</span>
             </div>
             <div>
-              <span className="info-label">Duration:</span>
-              <span id="route-duration" className="info-value">{routeInfo.duration}</span>
+              <span className="block text-sm text-gray-600">Duration:</span>
+              <span className="font-medium">{routeInfo.duration}</span>
             </div>
             <div>
-              <span className="info-label">Route Type:</span>
-              <span id="route-type" className="info-value">{routeInfo.routeType}</span>
+              <span className="block text-sm text-gray-600">Route Type:</span>
+              <span className="font-medium">{routeInfo.routeType}</span>
             </div>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="error" id="error-message" role="alert">
-          {error}
-          <button onClick={() => setError(null)} className="error-close">
-            &times;
-          </button>
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+          <div className="flex justify-between items-center">
+            <div className="text-red-700">{error}</div>
+            <button onClick={() => setError(null)} className="text-red-700 hover:text-red-900">
+              &times;
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default GeoifyRoutePlanner;
+export default dynamic(() => Promise.resolve(GeoifyRoutePlanner), {
+  ssr: false,
+  loading: () => <div className="text-center p-8">Loading map...</div>
+});
